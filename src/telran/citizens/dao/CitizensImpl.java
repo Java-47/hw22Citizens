@@ -84,7 +84,7 @@ public class CitizensImpl implements Citizens {
 
 	}
 
-	// O(log(n))
+	// O(n)
 	@Override
 	public boolean remove(int id) {
 		if (find(id) == null) {
@@ -111,26 +111,21 @@ public class CitizensImpl implements Citizens {
 		return personsId.get(index);
 	}
 
-	// O(n)
+	// O(log(n))
 	@Override
 	public Iterable<Person> find(int minAge, int maxAge) {
 		int from = 0;
 		int to = 0;
-		int index = 0;
+		
 		List<Person> minMaxList = new ArrayList<Person>(ageList);
+		
+		Person pattern = new Person(0, null, null, minAge);
+		from = Collections.binarySearch(minMaxList, pattern, ageComparator);
+		pattern = new Person(0, null, null, maxAge);
+		to = Collections.binarySearch(minMaxList, pattern, ageComparator);
+	    
 
-		for (Person person : minMaxList) {
-			if (person.getAge() < minAge) {
-				from = index;
-			}
-			if (person.getAge() <= maxAge) {
-				to = index + 1;
-			}
-			index++;
-		}
-
-		minMaxList = minMaxList.subList(from, to);
-		return minMaxList;
+		return minMaxList.subList(from-1, to+1);
 	}
 
 	// O(n)
