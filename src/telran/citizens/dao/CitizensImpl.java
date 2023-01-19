@@ -59,28 +59,25 @@ public class CitizensImpl implements Citizens {
 	}
 
 	@Override
-	// O(n)
+	// O(log(n))
 	public boolean add(Person person) {
-		if (person == null) {
+		if (person == null || find(person.getId()) != null) {
 			return false;
 		}
-		int indexOfIdList = idList.indexOf(person);
-		int indexOfNameList = lastNameList.indexOf(person);
-		int indexOfAgeList = ageList.indexOf(person);
-		if (find(person.getId()) == null) {
-			if (indexOfIdList == -1) {
-				idList.add(person);
-				lastNameList.add(person);
-				ageList.add(person);
-				return true;
-			} else {
-				idList.add(indexOfIdList, person);
-				lastNameList.add(indexOfNameList, person);
-				ageList.add(indexOfAgeList, person);
-				return true;
-			}
-		}
-		return false;
+		//idList
+	    int idListIndex = Collections.binarySearch(idList, person);
+	    idListIndex = idListIndex < 0 ? -(idListIndex + 1) : idListIndex;
+	    idList.add(idListIndex, person);
+	    //LastNameList
+	    int lastNameIndex = Collections.binarySearch(lastNameList, person, lastNameComparator);
+	    lastNameIndex = lastNameIndex < 0 ? -(lastNameIndex + 1) : lastNameIndex;
+	    lastNameList.add(lastNameIndex, person);
+	    //ageList
+	    int ageIndex = Collections.binarySearch(ageList, person, ageComparator);
+	    ageIndex = ageIndex < 0 ? -(ageIndex + 1) : ageIndex;
+	    ageList.add(ageIndex, person);
+	   
+	    return true;
 
 	}
 
@@ -117,15 +114,13 @@ public class CitizensImpl implements Citizens {
 		int from = 0;
 		int to = 0;
 		
-		List<Person> minMaxList = new ArrayList<Person>(ageList);
-		
 		Person pattern = new Person(0, null, null, minAge);
-		from = Collections.binarySearch(minMaxList, pattern, ageComparator);
+		from = Collections.binarySearch(ageList, pattern, ageComparator);
 		pattern = new Person(0, null, null, maxAge);
-		to = Collections.binarySearch(minMaxList, pattern, ageComparator);
+		to = Collections.binarySearch(ageList, pattern, ageComparator);
 	    
 
-		return minMaxList.subList(from-1, to+1);
+		return ageList.subList(from-1, to+1);
 	}
 
 	// O(n)
@@ -152,6 +147,7 @@ public class CitizensImpl implements Citizens {
 
 		lastNameNewList = lastNameNewList.subList(from, to);
 		return lastNameNewList;
+		
 	}
 
 	@Override
